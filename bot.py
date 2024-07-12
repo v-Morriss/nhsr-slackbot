@@ -8,7 +8,6 @@ from slack_sdk.errors import SlackApiError
 SLACK_BOT_TOKEN = os.environ["SLACK_BOT_TOKEN"]
 BOT_CHANNEL = os.environ["BOT_CHANNEL"]
 URL = os.environ["URL"]
-#URL = "https://localhost:8080"
 CACHE_FILE = "cache.json"
 
 logging.basicConfig(level=logging.INFO)
@@ -37,11 +36,15 @@ class Post:
 		return f"<{self.link}|{self.title}> written by _{self.author}_ [{self.published}]\n" + f"\n> {self.summary}"
 
 def read_cache():
-	with open(CACHE_FILE, 'r') as cache:
-		try:
+	try:
+		with open(CACHE_FILE, 'r') as cache:
 			return set(json.loads(cache.read())["links"])
-		except:
-			return {}
+	except FileExistsError:
+		with open(CACHE_FILE, 'w') as cache:
+			cache.write(json.loads({"links" : []}))
+	
+	finally:
+		return []
 		
 def write_to_cache(links):
 	with open(CACHE_FILE, 'w') as cache:
